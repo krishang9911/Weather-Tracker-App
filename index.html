@@ -374,6 +374,7 @@ clearHistoryButton.onclick = () => {
     //   it will return null
 }
 
+
 function showHistory() {
     let cities = localStorage.getItem("cities");
     cities = cities ? JSON.parse(cities) : [];
@@ -396,8 +397,8 @@ function showHistory() {
         }
 
         deleteBtn.onclick = () => {
-            deleteBtn.parentElement.remove();
-            cities.filter()
+            removeHistory(city);
+            showHistory();
         }
 
         wrapper.appendChild(searchBtn);
