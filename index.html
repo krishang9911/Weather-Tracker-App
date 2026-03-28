@@ -2,288 +2,453 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Async Weather Tracker</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Async Weather Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        body {
+body {
     font-family: Arial, sans-serif;
-    background: #ffffff;
-    padding: 20px;
-}
-        .container {
-            max-width: 1300px;
-            margin: auto;
-        }
-
-        .parent-card {
-    display: flex;
-    flex-direction: column;  /* stack vertically */
-    gap: 50px;
+    background: linear-gradient(135deg, #399fff, #5dc9ff);
+    transition: background 0.8s ease;
 }
 
-        h1 {
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+h1 {
     text-align: center;
-    color: #554d4e;  /* orange */
-    margin-bottom: 20px;
+    color: #ffffff;
+    margin: 10px 0 10px;
 }
 
-       .card {
-    background: #f9f2ee;  /* slightly warm white */
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 2px 4px rgb(212, 195, 177);
-    width: 1200px;
-    margin-left: 50px;
-       }
-        .input-group {
+.parent-card {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.card {
+    flex: 1;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(18px);
+    border-radius: 22px;
+    padding: 28px;
+    border: 1px solid rgba(255,255,255,0.25);
+
+    box-shadow: 
+        0 8px 32px rgba(0,0,0,0.2),
+        inset 0 1px 1px rgba(255,255,255,0.25);
+
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.input-group {
     display: flex;
     gap: 10px;
-    margin-top: 20px;  /* pushes it slightly down */
+    margin-top: 15px;
 }
 
 input {
     flex: 1;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    padding: 12px;
+    border-radius: 999px;
+    border: none;
+    outline: none;
 }
 
 button {
-    padding: 10px 20px;
-    background: #fb8959;  /* warmer + darker orange */
-    color: #fff;
+    padding: 12px 22px;
     border: none;
-    border-radius: 8px;
+    border-radius: 999px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-2px) scale(1.03);
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+.history button {
+    margin: 5px;
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #333;
+}
+
+.history-controls {
+    margin-bottom: 10px;
+    text-align: center; /* center the button above history buttons */
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 6px 0;
+}
+
+.city-btn {
+    flex: 1;
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #333;
+}
+
+.delete-btn {
+    padding: 6px 10px;
+    border-radius: 50%;
+    background: #ff5c5c;
+    color: white;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-btn:hover {
+    background: #ff2e2e;
+}
+
+#clearHistoryBtn {
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: none;
+    background: #ff5c5c; /* bright red for “clear” action */
+    color: #fff;
+    font-weight: 600;
     cursor: pointer;
     transition: 0.2s;
 }
 
-    button:hover {
-    background: #f9956d;  /* deeper shade */
+#clearHistoryBtn:hover {
+    background: #ff2e2e; /* darker red on hover */
 }
 
-    button:active {
+#clearHistoryBtn:active {
     transform: scale(0.97);
 }
 
-        .weather-item {
+#weather {
+    margin-top: 10px;
+}
+
+/* 🔥 FIXED SPACING */
+.weather-item {
     display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    margin-bottom: 6px;
-    background: #f1f3f6;
-    border-radius: 6px;
-}
-        .console {
-            background: #161E54;
-            color: #BBE0EF;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .log.async {
-            border-left: 3px solid #F16D34;
-            padding-left: 6px;
-        }
-
-        .log.promise {
-            border-left: 3px solid #FF986A;
-            padding-left: 6px;
-        }
-
-        .log.callback {
-            border-left: 3px solid #BBE0EF;
-            padding-left: 6px;
-        }
-
-        .history button {
-    margin: 5px;
-    padding: 5px 10px;
-    border-radius: 15px;
-    background: #ffd27f;
-    border: none;
+    align-items: center;
+    margin-bottom: 12px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 12px;
+    padding: 14px 16px;
 }
 
-hr{
-    border: none;
-    height: 2px;
-    background-color:#565252;
+/* left side */
+.weather-item label {
+    flex: 1;
+    font-weight: 600;
+    color: #555;
 }
 
-        @media (max-width:700px) {
-            .parent-card {
-                flex-direction: column;
-            }
-        }
+/* right side */
+.weather-item span {
+    flex: 1;
+    text-align: right;
+    color: #222;
+}
 
+/* temperature highlight */
+.weather-item:nth-child(2) {
+    font-size: 22px;
+    font-weight: bold;
+}
 
-        h3[id="info"]{
-            text-align: center;
-        }
-    </style>
+h3 {
+    color: #242a24;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 700px) {
+    .parent-card {
+        flex-direction: column;
+    }
+}
+</style>
 </head>
 
 <body>
-    <div class="container">
 
-        <h1>🌤 Async Weather Tracker</h1>
-        <hr><br><br>
+<div class="container">
 
-        <div class="parent-card">
+<h1>🌤 Async Weather Tracker</h1>
 
-            <div class="card" id="weather-info">
-                <h3 id = "info">Weather Info</h3>
-                <div id="weather"></div>
-            </div>
+<div class="parent-card">
 
-            <div class="card">
-                <h3>Search City</h3>
-                <div class="input-group">
-                    <input id="cityInput" placeholder="Delhi, London">
-                    <button id="searchBtn">Search</button>
-                </div>
-                <br>
-                <br>
-                <h3>Search History</h3>
-                <div class="history" id="history"></div>
-            </div>
+<div class="card">
+    <h3>Search City</h3>
 
-            
-        </div>
-
-        <!-- <div class="card">
-            <h3>Console – Event Loop</h3>
-            <div class="console" id="console"></div>
-        </div> -->
-
+    <div class="input-group">
+        <input id="cityInput" placeholder="Delhi, London">
+        <button id="searchBtn">Search</button>
     </div>
 
-    <script>
-        const API_KEY = "660e128c140b552988a795d0c1d2f35c";
-        //    const API_KEY = "660e128c140b552988a795d0c1d2f35c";
+    <br>
 
-        const weatherBox = document.getElementById("weather");
-        const historyBox = document.getElementById("history");
+    <h3>Search History</h3>
+    <div class="history-controls">
+    <button id="clearHistoryBtn">Clear History</button>
+    </div>
+    <div class="history" id="history"></div>
+</div>
 
-        /* ---------- WEATHER FETCH ---------- */
-        async function getWeather(city) {
+<div class="card">
+    <h3>Weather Info</h3>
+    <div id="weather"></div>
+</div>
 
-            // small delay for smoother UI
-            // await new Promise(r => setTimeout(r, 500));
+</div>
+</div>
 
-            const res = await fetch(
-                `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
-            );
-            if (!res.ok) { 
-                const err = await res.json();
-                console.log(err);
-                throw new Error(err.message);
-            }
-            const data = await res.json();
-            return data;
+<script>
+const API_KEY = "660e128c140b552988a795d0c1d2f35c";
+
+const weatherBox = document.getElementById("weather");
+const historyBox = document.getElementById("history");
+
+/* BACKGROUND ENGINE */
+function setBackground(weatherDesc, temp) {
+    weatherDesc = weatherDesc.toLowerCase();
+    const hour = new Date().getHours();  
+
+    // new Date() creates a new date object
+    //  for eg. if the date is 25 Mar and time is 10am, it would give
+    //   Wed Mar 25 10:45:19
+    //    .getHours() extracts the ti   
+    const isNight = hour >= 19 || hour <= 6;
+
+    let bg;
+
+    // THUNDERSTORM
+    if (weatherDesc.includes("thunder")) {
+        bg = isNight
+            ? "linear-gradient(135deg, #0f2027, #232526)"  // Dark gradient
+            : "linear-gradient(135deg, #141e30, #243b55)";  // Light gradient
+    }
+    // RAIN / DRIZZLE
+    else if (weatherDesc.includes("rain") || weatherDesc.includes("drizzle")) {
+        bg = isNight
+            ? "linear-gradient(135deg, #1f1c2c, #928dab)"  // Dark gradient
+            : "linear-gradient(135deg, #4b79a1, #283e51)";  // Light gradient
+    } 
+    // CLOUDS
+    else if (weatherDesc.includes("cloud")) {
+        if (isNight) {
+            bg = "linear-gradient(135deg, #232526, #414345)";
+        } else {
+            if (temp > 32) bg = "linear-gradient(135deg, #d7d2cc, #304352)";       // hot cloudy
+            else if (temp > 25) bg = "linear-gradient(135deg, #e0eafc, #cfdef3)"; // mild cloudy
+            else if (temp <= 12) bg = "linear-gradient(135deg, #cfd9df, #e2ebf0)"; // cold cloudy
+            else bg = "linear-gradient(135deg, #dfe9f3, #ffffff)";                 // default cloudy
         }
+    }
+    // MIST / HAZE / FOG
+    else if (weatherDesc.includes("mist") || weatherDesc.includes("haze") || weatherDesc.includes("fog")) {
+        if (isNight) {
+            bg = "linear-gradient(135deg, #3a3a3a, #1f1f1f)";
+        } else {
+            if (temp > 32) bg = "linear-gradient(135deg, #c79081, #dfa579)";  // hot haze
+            else if (temp > 20) bg = "linear-gradient(135deg, #757f9a, #d7dde8)"; // mild haze
+            else if (temp > 0) bg = "linear-gradient(135deg, #cfd9df, #e2ebf0)";   // cold haze
+            else bg = "linear-gradient(135deg, #e0f7fa, #b2ebf2)";                // freezing haze
+        }
+    }
+    // SNOW
+    else if (weatherDesc.includes("snow")) {
+        bg = isNight
+            ? "linear-gradient(135deg, #2c3e50, #4ca1af)"
+            : temp <= 0
+                ? "linear-gradient(135deg, #e0f7fa, #b2ebf2)"  // freezing snow
+                : "linear-gradient(135deg, #f0f5f9, #d9eff5)"; // mild snow
+    }
+    // SMOKE / DUST
+    else if (weatherDesc.includes("smoke") || weatherDesc.includes("dust") || weatherDesc.includes("sand")) {
+        bg = isNight
+            ? "linear-gradient(135deg, #2c2c2c, #1a1a1a)"
+            : "linear-gradient(135deg, #b0b0b0, #d3d3d3)";
+    }
+    // CLEAR SKY
+    else if (weatherDesc.includes("clear")) {
+        if (temp > 38) bg = "linear-gradient(135deg, #fceabb, #f39c12)";   // extremely hot
+        else if (temp > 32) bg = "linear-gradient(135deg, #fceabb, #f8b500)"; // hot
+        else if (temp > 25) bg = "linear-gradient(135deg, #fff3b0, #f7d794)"; // warm
+        else if (temp > 12) bg = "linear-gradient(135deg, #fef9c3, #fef3c7)"; // mild
+        else if (temp > 0) bg = "linear-gradient(135deg, #dbeafe, #bfdbfe)";  // cold
+        else bg = "linear-gradient(135deg, #e0f7fa, #b2ebf2)";                // freezing
+    }
+    // FALLBACK (any other weather / unknown)
+    else {
+        bg = isNight
+            ? "linear-gradient(135deg, #0f2027, #203a43, #2c5364)"
+            : temp > 30
+                ? "linear-gradient(135deg, #fef9c3, #fef3c7)" // hot fallback
+                : "linear-gradient(135deg, #399fff, #5dc9ff)"; // default day
+    }
 
-         /* ---------- BUTTON CLICK ---------- */
-        document.getElementById("searchBtn").onclick = () => {
-            const city = cityInput.value.trim();
-            if (city) {
-                search(city);
-            }
-        };
+    document.body.style.background = bg;
+}
 
-        /* ---------- UI RENDER ---------- */
-        function renderWeather(d) {
-            weatherBox.innerHTML = `
+/* FETCH */
+async function getWeather(city) {
+    const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+    );
+    if (!res.ok) { 
+        const err = await res.json();
+        throw new Error(err.message);
+    }
+    data = await res.json();
+    return data;
+}
+
+/* RENDER */
+function renderWeather(d) {
+
+//  setting background using weather description and temperature
+    setBackground(d.weather[0].description, d.main.temp);
+
+    weatherBox.innerHTML = `
         <div class="weather-item"><label>City</label><span>${d.name}, ${d.sys.country}</span></div>
         <div class="weather-item"><label>Temperature</label><span>${d.main.temp} °C</span></div>
-        <div class="weather-item"><label>Weather</label><span>${d.weather[0].main}</span></div>
+        <div class="weather-item"><label>Feels Like</label><span>${d.main.feels_like} °C</span></div>
+        <div class="weather-item"><label>Weather</label><span>${d.weather[0].description}</span></div>
         <div class="weather-item"><label>Humidity</label><span>${d.main.humidity}%</span></div>
         <div class="weather-item"><label>Wind Speed</label><span>${d.wind.speed} m/s</span></div>
     `;
+}
+
+/* HISTORY */
+function saveHistory(city) {
+    let cities = localStorage.getItem("cities");
+    cities = cities ? JSON.parse(cities) : [];
+
+    if (!cities.includes(city)) {
+        cities.push(city);
+    }
+
+    localStorage.setItem("cities", JSON.stringify(cities));
+    showHistory();
+}
+
+/* Clear History Button */
+const clearHistoryButton = document.getElementById("clearHistoryBtn");
+clearHistoryButton.onclick = () => {
+    historyBox.innerHTML = "";
+    localStorage.removeItem("cities");  
+
+    // so, next time, when we will do
+    // localStorage.getItem("cities");
+    //   it will return null
+}
+
+function showHistory() {
+    let cities = localStorage.getItem("cities");
+    cities = cities ? JSON.parse(cities) : [];
+    cities.forEach(city => {
+        let wrapper = document.createElement("div");
+        let searchBtn = document.createElement("button");
+        let deleteBtn = document.createElement("button");
+        
+        // Assigning content to both buttons
+        searchBtn.innerText = city;
+        deleteBtn.innerText = "X";
+
+        // Assigning class name to both buttons and the wrapper
+        searchBtn.className = "search-btn";
+        deleteBtn.className = "delete-btn";
+        wrapper.className = "history-item";
+
+        searchBtn.onclick = () => {
+            if (city) search(city);
         }
 
-        /* ---------- SAVE SEARCH HISTORY ---------- */
-        function saveHistory(city) {
-            let cities = localStorage.getItem("cities");
-            if (!cities){
-                cities = [];
-            }else{
-                cities = JSON.parse(cities);
-            }
-
-            // Avoid duplicates
-            let exists = false;
-            for (let i=0; i<cities.length; i++){
-                if (city === cities[i]){
-                    exists = true;
-                    break;
-                }
-            }
-            if(!exists){
-                cities.push(city);
-            }
-
-            localStorage.setItem("cities", JSON.stringify(cities));
-
-            // Update UI
-            showHistory()
+        deleteBtn.onclick = () => {
+            deleteBtn.parentElement.remove();
+            cities.filter()
         }
 
-        /* ---------- SHOW HISTORY ---------- */
-        function showHistory() {
-            let cities = localStorage.getItem("cities");
-           
-            if (!cities) return
+        wrapper.appendChild(searchBtn);
+        wrapper.appendChild(deleteBtn);
+        historyBox.appendChild(wrapper);
 
-            cities = JSON.parse(cities);
+    })
 
-            historyBox.innerHTML = "";
+}
+    
+/* SEARCH */
+async function search(city) {
+    weatherBox.innerHTML = `<p style="color:white;text-align:center">⏳ Loading...</p>`;
 
-            for (let i=0; i<cities.length; i++){
-                let btn = document.createElement("button");
-                btn.innerText = cities[i];
-                btn.onclick = () => {
-                    search(cities[i])
-                }
-                historyBox.appendChild(btn);
-            }
-        }
+    searchBtn.disabled = true;  // disables the search button during loading
+    // this temporary disabling is imp because lets say user types a city 
+    //  and then clicks the search button and while the weather info is 
+    //    being rendered, then the new weather info will not load
+    //     because of multiple API fetch
 
-        /* ---------- SEARCH FUNCTION ---------- */
-        async function search(city) {
-            weatherBox.innerHTML = "";
-            try {
-                const data = await getWeather(city);
-                renderWeather(data);
-                saveHistory(data.name); 
-            } catch (error) {
-                weatherBox.innerHTML = `<p style="color:red">${error.message}</p>`;
-            }
-        }
-       
-        /* ---------- ENTER KEY SEARCH ---------- */
-        cityInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                const city = cityInput.value.trim();
-                if (city) {
-                    search(city);
-                }
-            }
-        });
-        /* ---------- INITIAL LOAD ---------- */
-        showHistory();
-    </script>
+    
+    try {
+    const data = await getWeather(city);
+    renderWeather(data);
+    saveHistory(data.name);
+    } catch (error) {
+        weatherBox.innerHTML = `<p style="color:red">${error.message}</p>`;
+    } finally{
+        searchBtn.disabled = false;  // enables search button after loading is complete
+    }
+}
+
+/* BUTTON */
+searchBtn.onclick = () => {
+    const city = cityInput.value.trim();
+    if (city) search(city);
+    cityInput.value = "";
+};
+
+/* ENTER */
+cityInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        const city = cityInput.value.trim();
+        if (city) search(city);
+        cityInput.value = "";
+    }
+});
+
+/* Initial LOAD */
+showHistory();  // This is important so that the historyBox doesnt lose current data
+</script>          // after reloading
+
 </body>
-
 </html>
