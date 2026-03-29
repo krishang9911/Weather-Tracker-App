@@ -28,6 +28,7 @@ h1 {
     text-align: center;
     color: #ffffff;
     margin: 10px 0 10px;
+    margin-bottom: 20px;
 }
 
 .parent-card {
@@ -93,6 +94,13 @@ button:active {
     transform: scale(0.96);
 }
 
+.history {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+
 .history button {
     margin: 5px;
     background: linear-gradient(135deg, #f7971e, #ffd200);
@@ -107,30 +115,33 @@ button:active {
 .history-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin: 6px 0;
+    gap: 0px; /* keeps close */
 }
 
 .city-btn {
-    flex: 1;
     background: linear-gradient(135deg, #f7971e, #ffd200);
     color: #333;
 }
 
-.delete-btn {
-    padding: 6px 10px;
-    border-radius: 50%;
+.history .delete-btn {
     background: #ff5c5c;
     color: white;
-    font-size: 12px;
+
+    width: 32px;
+    height: 32px;      /* equal = perfect circle */
+    border-radius: 50%;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    padding: 0;        /* IMPORTANT: remove padding */
+    font-size: 13px;
 }
 
-.delete-btn:hover {
+.history .delete-btn:hover {
     background: #ff2e2e;
+    transform: scale(1.1);
 }
 
 #clearHistoryBtn {
@@ -156,7 +167,7 @@ button:active {
     margin-top: 10px;
 }
 
-/* 🔥 FIXED SPACING */
+/* FIXED SPACING */
 .weather-item {
     display: flex;
     align-items: center;
@@ -204,7 +215,7 @@ h3 {
 
 <div class="container">
 
-<h1>🌤 Async Weather Tracker</h1>
+<h1>🌤 Neo Sky Weather Tracker</h1>
 
 <div class="parent-card">
 
@@ -374,8 +385,28 @@ clearHistoryButton.onclick = () => {
     //   it will return null
 }
 
+function removeHistory(c){
+    let cities = localStorage.getItem("cities");
+
+    // If cities is an empty string(falsy value), then initialize to empty array
+    //  otherwise, convert into array using JSON.parse() 
+    cities = cities ? JSON.parse(cities) : [];
+
+    // Remove the city from cities array
+    cities = cities.filter(cityName => cityName !== c);
+
+    // Store the cities array back into the localStorage in JSON form
+    localStorage.setItem("cities", JSON.stringify(cities));
+}
+
+
 
 function showHistory() {
+    // clearing historyBox previous UI to avoid 
+    //  adding the previous cities again
+    historyBox.innerHTML = "";
+
+
     let cities = localStorage.getItem("cities");
     cities = cities ? JSON.parse(cities) : [];
     cities.forEach(city => {
@@ -393,7 +424,7 @@ function showHistory() {
         wrapper.className = "history-item";
 
         searchBtn.onclick = () => {
-            if (city) search(city);
+            search(city);
         }
 
         deleteBtn.onclick = () => {
@@ -404,9 +435,7 @@ function showHistory() {
         wrapper.appendChild(searchBtn);
         wrapper.appendChild(deleteBtn);
         historyBox.appendChild(wrapper);
-
     })
-
 }
     
 /* SEARCH */
@@ -449,7 +478,8 @@ cityInput.addEventListener("keydown", (e) => {
 
 /* Initial LOAD */
 showHistory();  // This is important so that the historyBox doesnt lose current data
-</script>          // after reloading
+                // after reloading
 
+</script>          
 </body>
 </html>
